@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+This project is a web extension project using Plasmo. We always use Plasmo best practices
+when adding code and make sure that we check the docs to see that we're using the most up to date methods
+that Plasmo recommends.
+
+

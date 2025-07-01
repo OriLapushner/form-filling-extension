@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Make sure that we always use Typescript, After making code changes always verify that everything has a type and if it doesn't use best practices to fix it.

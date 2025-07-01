@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+When creating/editing components always use shadcn as a first approach unless told otherwise.
