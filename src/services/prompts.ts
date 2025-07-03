@@ -32,6 +32,32 @@ async function deletePrompt(name: string): Promise<void> {
 	if (selectedPromptName === name) await setSelectedPrompt('')
 }
 
+async function updatePrompt(originalName: string, newName: string, newPrompt: string): Promise<void> {
+	const prompts: Prompt[] = await getPrompts()
+	const promptIndex = prompts.findIndex(p => p.name === originalName)
+
+	if (promptIndex === -1) {
+		throw new Error(`Prompt with the name "${originalName}" not found`)
+	}
+
+	// Check if the new name already exists (if name is being changed)
+	if (originalName !== newName) {
+		const existingPrompt = prompts.find(p => p.name === newName)
+		if (existingPrompt) {
+			throw new Error(`A prompt with the name "${newName}" already exists`)
+		}
+	}
+
+	prompts[promptIndex] = { name: newName, prompt: newPrompt }
+	await storage.set("prompts", prompts)
+
+	// Update selected prompt if it was the one being edited
+	const selectedPromptName = await storage.get('selectedPrompt')
+	if (selectedPromptName === originalName) {
+		await setSelectedPrompt(newName)
+	}
+}
+
 async function getPrompt(name: string): Promise<Prompt> {
 	const prompts: Prompt[] = await getPrompts()
 	const prompt = prompts.find(p => p.name === name)
@@ -50,5 +76,5 @@ async function getSelectedPrompt(): Promise<Prompt> {
 }
 
 
-export { getPrompts, savePrompt, deletePrompt, getPrompt, getSelectedPrompt, setSelectedPrompt }
+export { getPrompts, savePrompt, deletePrompt, updatePrompt, getPrompt, getSelectedPrompt, setSelectedPrompt }
 export type { Prompt } 

@@ -1,9 +1,10 @@
 import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { MessageSquare, Trash2 } from "lucide-react"
+import { MessageSquare, Trash2, Edit } from "lucide-react"
 import { useStorage } from "@plasmohq/storage/hook"
 import { toast } from "sonner"
-import { deletePrompt } from "@/services/prompts"
+import { deletePrompt, type Prompt } from "@/services/prompts"
+import { EditPromptDialog } from "@/components/EditPromptDialog"
 
 interface CustomPrompt {
 	name: string
@@ -16,6 +17,9 @@ interface PromptsListProps extends React.HTMLAttributes<HTMLDivElement> {
 export function PromptsList({ className, ...props }: PromptsListProps) {
 	const [prompts] = useStorage<CustomPrompt[]>("prompts", [])
 	const [deleting, setDeleting] = useState<string | null>(null)
+	const [editPrompt, setEditPrompt] = useState<Prompt | null>(null)
+	const [editDialogOpen, setEditDialogOpen] = useState(false)
+
 	const handleDeletePrompt = async (name: string) => {
 		try {
 			setDeleting(name)
@@ -26,6 +30,11 @@ export function PromptsList({ className, ...props }: PromptsListProps) {
 		} finally {
 			setDeleting(null)
 		}
+	}
+
+	const handleEditPrompt = (prompt: CustomPrompt) => {
+		setEditPrompt(prompt)
+		setEditDialogOpen(true)
 	}
 
 	return (
@@ -50,19 +59,35 @@ export function PromptsList({ className, ...props }: PromptsListProps) {
 								</div>
 								<p className="text-sm text-muted-foreground line-clamp-2">{prompt.prompt}</p>
 							</div>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => handleDeletePrompt(prompt.name)}
-								disabled={deleting === prompt.name}
-								className="text-destructive hover:text-destructive hover:bg-destructive/10"
-							>
-								<Trash2 className="h-4 w-4" />
-							</Button>
+							<div className="flex gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => handleEditPrompt(prompt)}
+									className="text-muted-foreground hover:text-foreground"
+								>
+									<Edit className="h-4 w-4" />
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => handleDeletePrompt(prompt.name)}
+									disabled={deleting === prompt.name}
+									className="text-destructive hover:text-destructive hover:bg-destructive/10"
+								>
+									<Trash2 className="h-4 w-4" />
+								</Button>
+							</div>
 						</div>
 					))}
 				</div>
 			)}
+
+			<EditPromptDialog
+				open={editDialogOpen}
+				onOpenChange={setEditDialogOpen}
+				prompt={editPrompt}
+			/>
 		</div>
 	)
 } 
