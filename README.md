@@ -1,4 +1,17 @@
-This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
+# Form Filling Extension
+
+This is a browser extension that allows you to fill forms easily using LLMs with custom prompts for each form type you want to fill.
+
+## How it works
+
+The extension enables you to create custom prompts for different types of forms and then automatically fill them using AI. For example, if you're filling a signup form, you can create a prompt containing your name, email, age, and other details commonly requested for signup forms, and the extension will automatically fill the form fields for you. all the data is stored locally and you are required to use your own API keys.
+
+## Features
+
+- **Custom Prompts**: Create specific prompts for different form types (signup, contact, survey, etc.)
+- **AI-Powered**: Uses LLMs to intelligently fill form fields based on your prompts
+- **Multiple Form Types**: Support for various form types with different prompt configurations
+- **Easy Form Selection**: Simple interface to select forms and apply the appropriate prompts
 
 ## Getting Started
 
@@ -9,12 +22,6 @@ pnpm dev
 # or
 npm run dev
 ```
-
-Open your browser and load the appropriate development build. For example, if you are developing for the chrome browser, using manifest v3, use: `build/chrome-mv3-dev`.
-
-You can start editing the popup by modifying `popup.tsx`. It should auto-update as you make changes. To add an options page, simply add a `options.tsx` file to the root of the project, with a react component default exported. Likewise to add a content page, add a `content.ts` file to the root of the project, importing some module and do some logic, then reload the extension on your browser.
-
-For further guidance, [visit our Documentation](https://docs.plasmo.com/)
 
 ## Making production build
 
@@ -28,6 +35,4 @@ npm run build
 
 This should create a production bundle for your extension, ready to be zipped and published to the stores.
 
-## Submit to the webstores
-
-The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!
+This project is built with plasmo - a web extension platform, for more information about the structure of the project and how to its built go to the [plasmo docs](https://docs.plasmo.com/)
