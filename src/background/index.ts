@@ -1,4 +1,4 @@
-import { fillForm } from "@/lib/formFilling/fillForm"
+import { fillForm } from "@/services/fillForm"
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	if (message.type === 'elementSelected') {
@@ -8,10 +8,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function handleElementSelected(elementHtml: string) {
 	try {
-		const result = await fillForm(elementHtml, 1)
-		console.log('Fill form result:', result)
+		const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true })
+		if (!activeTab || !activeTab.id) {
+			console.error('No active tab found')
+			return
+		}
+		await fillForm(elementHtml, activeTab.id)
 
 	} catch (error) {
 		console.error('Error handling selected element:', error)
 	}
-} 
+}
