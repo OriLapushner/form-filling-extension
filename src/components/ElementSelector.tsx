@@ -1,15 +1,6 @@
 import * as React from "react"
 import { Button } from "@/components/ui/button"
-import { sendToBackground } from "@plasmohq/messaging"
-
-// Type definitions for the startElementSelection message
-type StartElementSelectionReqBody = {}
-
-type StartElementSelectionResBody = {
-	success: boolean
-	error?: string
-	message?: string
-}
+import type { ChromeMessage, ChromeMessageResponse } from "@/types/messages"
 
 export function ElementSelector() {
 	const [status, setStatus] = React.useState<string>("idle")
@@ -17,15 +8,25 @@ export function ElementSelector() {
 	const handleStartSelection = async () => {
 		setStatus("starting...")
 		try {
-			const response = await sendToBackground<StartElementSelectionReqBody, StartElementSelectionResBody>({
-				name: "startElementSelection",
-				body: {}
-			})
+			// Get the active tab
+			const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true })
 
-			if (response.success) {
-				setStatus(response.message || "selection mode active")
+			if (!activeTab || !activeTab.id) {
+				setStatus("error: No active tab found")
+				return
+			}
+			const message: ChromeMessage = { type: 'START_ELEMENT_SELECTION' }
+
+			const response = await chrome.tabs.sendMessage<ChromeMessage, ChromeMessageResponse>(
+				activeTab.id,
+				message
+			)
+
+			console.log('response from content script', response)
+			if (response?.success) {
+				setStatus("selection mode active")
 			} else {
-				setStatus("error: " + (response.error || "Unknown error"))
+				setStatus("error: " + (response?.error || "Unknown error"))
 			}
 		} catch (error) {
 			setStatus("error: " + (error instanceof Error ? error.message : String(error)))
