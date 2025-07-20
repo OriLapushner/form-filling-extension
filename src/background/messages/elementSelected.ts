@@ -1,5 +1,5 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
-import { getFilledInputsFromLLM, type getResultsFromLLMResponse } from "@/services/fillForm"
+import { getFilledInputsFromLLM, type getResultsFromLLMResponse } from "@/services/fillInputs"
 
 export type ElementSelectedReqBody = {
 	elementHtml: string
