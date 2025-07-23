@@ -6,28 +6,25 @@ import { type HtmlHTMLAttributes } from "react"
 import { Save } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { saveApiKey } from "@/services/apiKeys"
+import { PROVIDERS } from "@/services/models"
 import { toast } from "sonner"
-
-const LLM_PROVIDERS = [
-	{ value: "anthropic", label: "Anthropic" },
-	{ value: "openai", label: "OpenAI" },
-	{ value: "gemini", label: "Gemini" }
-]
 interface ApiKeyFormProps extends HtmlHTMLAttributes<HTMLDivElement> {
 }
 
 export function ApiKeyForm({ className, ...props }: ApiKeyFormProps) {
-	const [selectedProvider, setSelectedProvider] = React.useState<string>("anthropic")
+	// using select state so reset form doesn't break the state
+	const [selectedProvider, setSelectedProvider] = React.useState("anthropic")
 
 	const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		const formData = new FormData(e.currentTarget)
 		const apiKey = formData.get("api-key") as string
 		const apiKeyName = formData.get("api-key-name") as string
-
+		const formRef = e.currentTarget
 		try {
 			await saveApiKey(apiKey, selectedProvider, apiKeyName)
 			toast.success("API key saved successfully")
+			formRef.reset()
 		} catch (error) {
 			toast.error(error instanceof Error ? error.message : "Failed to save API key")
 		}
@@ -38,12 +35,12 @@ export function ApiKeyForm({ className, ...props }: ApiKeyFormProps) {
 			<form onSubmit={handleSave} className="space-y-4">
 				<div className="space-y-2">
 					<Label htmlFor="provider">LLM Provider</Label>
-					<Select value={selectedProvider} onValueChange={setSelectedProvider}>
+					<Select name="provider" value={selectedProvider} onValueChange={setSelectedProvider}>
 						<SelectTrigger>
 							<SelectValue placeholder="Select a provider" />
 						</SelectTrigger>
 						<SelectContent>
-							{LLM_PROVIDERS.map((provider) => (
+							{PROVIDERS.map((provider) => (
 								<SelectItem key={provider.value} value={provider.value}>
 									{provider.label}
 								</SelectItem>
@@ -53,7 +50,7 @@ export function ApiKeyForm({ className, ...props }: ApiKeyFormProps) {
 				</div>
 
 				<div className="space-y-2">
-					<Label htmlFor="api-key">{LLM_PROVIDERS.find(p => p.value === selectedProvider)?.label} API Key</Label>
+					<Label htmlFor="api-key">API Key</Label>
 					<Input
 						id="api-key"
 						name="api-key"

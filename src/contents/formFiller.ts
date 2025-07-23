@@ -21,7 +21,6 @@ function startSelectionMessageHandler(
 	sender: chrome.runtime.MessageSender,
 	sendResponse: (response?: ChromeMessageResponse) => void
 ) {
-	console.log('received START_ELEMENT_SELECTION message', message)
 	startElementSelection()
 	sendResponse({ success: true })
 }
@@ -46,7 +45,6 @@ function startElementSelection() {
 	document.head.appendChild(style)
 
 	let currentHighlighted: Element | null = null
-
 	function handleMouseMove(event: MouseEvent) {
 		if (currentHighlighted) {
 			currentHighlighted.classList.remove('element-selector-highlight')

@@ -19,6 +19,15 @@ async function deleteApiKey(name: string) {
 	await storage.set("apiKeys", filteredApiKeys)
 	const selectedApiKeyName = await storage.get('selectedApiKey')
 	if (selectedApiKeyName === name) await setSelectedApiKey('')
+
+	const deletedKey = apiKeys.find(key => key.name === name)
+	if (deletedKey) {
+		const providerSelectedKey = await storage.get(`selectedApiKey_${deletedKey.apiKeyProvider}`)
+		if (providerSelectedKey === name) {
+			await storage.set(`selectedApiKey_${deletedKey.apiKeyProvider}`, '')
+		}
+	}
+
 	return filteredApiKeys
 }
 
@@ -43,5 +52,22 @@ async function getSelectedApiKey(): Promise<ApiKey> {
 	if (!selectedApiKey) throw new Error('No API key selected')
 	return getApiKey(selectedApiKey)
 }
-export { saveApiKey, deleteApiKey, getApiKey, getApiKeys, setSelectedApiKey, getSelectedApiKey }
+
+async function setSelectedProviderKey(provider: string, name: string | null): Promise<void> {
+	const keys = await getApiKeys()
+	if (name === null) return await storage.remove(`selectedApiKey_${provider}`)
+	const key = keys.find(key => key.name === name)
+	if (!key) throw new Error('API key not found')
+	if (key.apiKeyProvider !== provider) throw new Error('API key provider does not match')
+	const keyToSave = { name: key.name, apiKeyProvider: key.apiKeyProvider, apiKey: key.apiKey }
+	await storage.set(`selectedApiKey_${provider}`, keyToSave)
+}
+
+async function getSelectedProviderKey(provider: string): Promise<ApiKey | undefined> {
+	const selectedKey = await storage.get<ApiKey>(`selectedApiKey_${provider}`)
+	return selectedKey
+}
+
+
+export { saveApiKey, deleteApiKey, getApiKey, getApiKeys, setSelectedApiKey, getSelectedApiKey, setSelectedProviderKey, getSelectedProviderKey }
 export type { ApiKey }

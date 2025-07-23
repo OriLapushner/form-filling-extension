@@ -11,21 +11,21 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useStorage } from "@plasmohq/storage/hook"
-import { setSelectedApiKey, type ApiKey } from "@/services/apiKeys"
 import { setSelectedPrompt, type Prompt } from "@/services/prompts"
+import { ALL_LLM_MODELS, setSelectedModel } from "@/services/models"
 
 function IndexPopup() {
-  const [selectedApiKey] = useStorage<string>("selectedApiKey", "")
   const [selectedPrompt] = useStorage<string>("selectedPrompt", "")
+  const [selectedModel] = useStorage<string>("selectedModel", "")
   const [prompts] = useStorage<Prompt[]>("prompts", [])
-  const [apiKeys] = useStorage<ApiKey[]>("apiKeys", [])
 
-  const handleApiKeyChange = async (value: string) => {
-    await setSelectedApiKey(value)
-  }
 
   const handlePromptChange = async (value: string) => {
     await setSelectedPrompt(value)
+  }
+
+  const handleModelChange = async (value: string) => {
+    await setSelectedModel(value)
   }
 
   const openOptionsPage = () => {
@@ -42,16 +42,17 @@ function IndexPopup() {
       <ElementSelector />
 
       <div className="space-y-4">
+
         <div className="space-y-2">
-          <label className="text-sm font-medium">API Key</label>
-          <Select value={selectedApiKey} onValueChange={handleApiKeyChange}>
+          <label className="text-sm font-medium">Model</label>
+          <Select value={selectedModel} onValueChange={handleModelChange}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select an API key" />
+              <SelectValue placeholder="Select a model" />
             </SelectTrigger>
             <SelectContent>
-              {apiKeys.map((apiKey) => (
-                <SelectItem key={apiKey.name} value={apiKey.name}>
-                  {apiKey.name} ({apiKey.apiKeyProvider})
+              {ALL_LLM_MODELS.map((model) => (
+                <SelectItem key={model.modelVersion} value={model.modelVersion}>
+                  {model.modelDisplayName} ({model.provider})
                 </SelectItem>
               ))}
             </SelectContent>
@@ -73,6 +74,7 @@ function IndexPopup() {
             </SelectContent>
           </Select>
         </div>
+
       </div>
 
       <div className="border-t pt-4 flex justify-center gap-4">

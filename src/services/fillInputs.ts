@@ -1,8 +1,12 @@
 import { generateObject } from 'ai'
 import { createAnthropic } from '@ai-sdk/anthropic'
+import { createOpenAI } from '@ai-sdk/openai'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { z } from 'zod'
-import { getSelectedApiKey } from '@/services/apiKeys'
+import { getSelectedProviderKey } from '@/services/apiKeys'
 import { getSelectedPrompt } from '@/services/prompts'
+import { getSelectedModel, type Model } from '@/services/models'
+
 
 const InputDataSchema = z.object({
 	inputFillId: z.number(),
@@ -24,19 +28,36 @@ interface getResultsFromLLMPayload {
 	elementHtml: string
 }
 
-export async function getFilledInputsFromLLM({ elementHtml }: getResultsFromLLMPayload): Promise<getResultsFromLLMResponse> {
-	try {
-		const selectedApiKey = await getSelectedApiKey()
-		const selectedPrompt = await getSelectedPrompt()
+const getModel = async (selectedModel: Model, apiKey: string) => {
+	if (selectedModel.provider === 'anthropic') {
 		const anthropic = createAnthropic({
-			apiKey: selectedApiKey.apiKey,
+			apiKey: apiKey,
 			headers: { 'anthropic-dangerous-direct-browser-access': 'true' }
 		})
+		return anthropic(selectedModel.modelVersion)
+	}
+	if (selectedModel.provider === 'openai') {
+		const openAI = createOpenAI({ apiKey })
+		return openAI(selectedModel.modelVersion)
+	}
+	if (selectedModel.provider === 'google') {
+		const google = createGoogleGenerativeAI({ apiKey })
+		return google(selectedModel.modelVersion)
+	}
+	throw new Error('Invalid provider')
+}
+
+export async function getFilledInputsFromLLM({ elementHtml }: getResultsFromLLMPayload): Promise<getResultsFromLLMResponse> {
+	try {
+		const selectedPrompt = await getSelectedPrompt()
+		const selectedModel = await getSelectedModel()
+		const apiKey = await getSelectedProviderKey(selectedModel.provider)
+		if (!apiKey) throw new Error('No API key selected')
+		const model = await getModel(selectedModel, apiKey.apiKey)
 
 		const startTime = performance.now()
-
 		const result = await generateObject({
-			model: anthropic('claude-sonnet-4-20250514'),
+			model,
 			system: `You are a helpful assistant that fills HTML form inputs. The user will supply you
 					with information about form inputs and instructions on how to fill them.
 					Each input has a unique "Form Fill ID" which you will use to identify the fields.
@@ -55,7 +76,7 @@ export async function getFilledInputsFromLLM({ elementHtml }: getResultsFromLLMP
 						${selectedPrompt.prompt} 
 						</user-prompt>`,
 			output: "array",
-			schema: InputDataSchema
+			schema: InputDataSchema,
 		})
 
 		const endTime = performance.now()

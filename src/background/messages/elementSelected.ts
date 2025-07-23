@@ -16,8 +16,6 @@ const handler: PlasmoMessaging.MessageHandler<
 	ElementSelectedResBody
 > = async (req, res) => {
 	try {
-		console.log('message.payload.elementHtml', req.body?.elementHtml)
-
 		const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true })
 		if (!activeTab || !activeTab.id) {
 			console.error('No active tab found')
